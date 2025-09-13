@@ -66,25 +66,25 @@ jobs:
 
       - name: Build Scraper Docker Image
         run: |
-          docker build -t ghcr.io/${{ github.repository }}/scraper:latest src/scraper/
+          docker build -t ghcr.io/${{ github.actor }}/scraper:latest src/scraper/
 
       - name: Push scraper docker Image
         run: |
-          docker push ghcr.io/${{ github.repository }}/scraper:latest
+          docker push ghcr.io/${{ github.actor }}/scraper:latest
 
       - name: Build multimodal image
         run: |
-          docker build -t ghcr.io/${{ github.repository }}/multimodal:latest src/multi_modal
+          docker build -t ghcr.io/${{ github.actor }}/multimodal:latest src/multi_modal
 
       - name: Push multimodal image
         run: |
-          docker push ghcr.io/${{ github.repository }}/multimodal:latest
+          docker push ghcr.io/${{ github.actor }}/multimodal:latest
 
       - name: Build Airflow DAGs Docker Image
         run: |
-          docker build -t ghcr.io/${{ github.repository }}/airflow-dags:latest src/airflow_dags      
+          docker build -t ghcr.io/${{ github.actor }}/airflow-dags:latest src/airflow_dags      
 
       - name: Push Airflow DAGs Docker Image
         run: |
-          docker push ghcr.io/${{ github.repository }}/airflow-dags:latest
+          docker push ghcr.io/${{ github.actor }}/airflow-dags:latest
 
