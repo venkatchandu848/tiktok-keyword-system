@@ -18,7 +18,7 @@ if not ms_token:
 
 REGIONS = [
     "US", "DE", "FR", "UK",
-  "IT", "ES", "NL", "BE", "CH"
+    "IT", "ES", "NL", "BE", "CH"
     #   "SE", "NO", "DK", "FI", "IS",
     #   "PL", "CZ", "HU", "SK", "RO", "BG"
 ]
@@ -34,6 +34,7 @@ OUTPUT_FILE = "tiktok_trending1.json"
 # -----------------------------
 # Helper: fetch videos per region/category
 # -----------------------------
+
 
 @retry(wait=wait_exponential(multiplier=2, min=4, max=20), stop=stop_after_attempt(3))
 async def fetch_videos(api, region, category, count=VIDEOS_PER_CATEGORY):
@@ -65,7 +66,7 @@ async def fetch_videos(api, region, category, count=VIDEOS_PER_CATEGORY):
             # await asyncio.sleep(random.uniform(0.5, 2.0))
 
             # # Random sleep between regions
-            # await asyncio.sleep(random.uniform(2, 5))       
+            # await asyncio.sleep(random.uniform(2, 5))   
     except Exception as e:
         print(f"[fetch_videos] failed for {region}-{category}: {e}")
     return videos_list
@@ -73,6 +74,7 @@ async def fetch_videos(api, region, category, count=VIDEOS_PER_CATEGORY):
 # -----------------------------
 # Main async function
 # -----------------------------
+
 
 async def main():
     all_videos = []
