@@ -14,7 +14,7 @@ It supports running both with Docker (recommended) and without a docker (using a
 
 ## 📂 Project Structure
 ```
-tiktok-trending-pipeline/
+tiktok-keyword-system/
 │
 ├── src/
 │   ├── scraper/
@@ -60,10 +60,14 @@ tiktok-trending-pipeline/
 │
 ├── docker-compose.yml
 ├── requirements_all.txt
-└── README.md
+├── README.md
+├── .gitignore
+├── .env
+├── Book2.twbr     # Tableau Dashboard
+└── tiktok_analysis.png    # Sample tableau dashboard
 ```
---- 
 
+--- 
 
 ## ⚡ Workflow Overview
 
@@ -94,7 +98,6 @@ tiktok-trending-pipeline/
   - Streamlit also does the same thing to be interactive.
 
 
-
 ## Running without docker
 
 ### 1. Setup virtual environment and install dependencies
@@ -107,11 +110,78 @@ pip install -r requirements_all.txt
 ```
 
 ### 2. Run components
-- **Scraper**
-  Run the scraper to fetch trending tiktok videos:
-
+- **Scraper**: Run the scraper to fetch trending tiktok videos.
   ```bash
   python src/scraper/scraper1.py
   ```
 
-- ** 
+- **Multimodal Pipeline**: Generates keywords and saves it into database and csv files.
+  ```bash
+  python src/multi_modal/multimodal_pipeline.py
+  ```
+
+- **Process Keywords**: Extracts some more metrics for business analytics.
+  ```bash
+  python src/multi_modal/preprocess.py keywords.csv keywords_clean.csv
+  ```
+
+- **Run Spark-based Multimodal (optional)**
+  ```bash
+  python src/multi_modal/multimodal_spark.py
+  ```
+
+- **Start Streamlit API**
+  ```bash
+  streamlit run src/api/streamlit_app.py
+  ```
+
+- **Start FastAPI (optional)**
+  ```bash
+  uvicorn src/api/api:app --reload --port 8000
+
+- **Database Initialization (PostgreSQL/TimescaleDB)**: Saved keywords to database
+  ```bash
+  psql -U <DB_USER> -d <DB_NAME> -f src/database/full_file.sql
+  ```
+
+## Running with Docker (Recommended)
+
+### 1. Build and start all services
+```bash
+docker-compose up --build
+```
+
+This will start:
+- titkok-db: TimescaleDB
+- airflow: Scheduler + Webserver
+- scraper: TiktokAPI scraper
+- multimodal: Multimodal pipeline (Spark optional)
+- Shared volume (`shared-data`) for exchaning json/csv files between containers
+
+### 2. Run airflow DAG
+- Visit `http://localhost:8080` to access Airflow UI
+- Trigger `tiktok_pipeline_dag` DAG manually or wait for daily schedule
+
+### 3. Streamlit Dashboard
+- Visit `http://localhost:8501`
+
+
+# Docker Notes
+- Volumes
+| Service    | Volume           | Path (Container)       | Notes                                          |
+|------------|------------------|------------------------|------------------------------------------------|
+| multimodal | /multimodal/data | Stores keywords.csv and keywords_clean.csv           |
+| api / streamlit | /app/data      | Reads keywords_clean.csv for visualization           |
+| scraper    | /scraper/data    | Stores tiktok_trending.json  
+
+- Shared volumes ensure containers can access generated files across services.
+
+# Airflow DAG Overview
+```
+scraper -> multimodal_pipeline -> preprocess_keywords -> refresh_rollups -> compute_keyword_growth -> collect_pipeline_metrics
+```
+- Each step runs in its own container
+- DAG ensures all dependencies execute in order.
+- Spark-based multimodal can process large video datasets efficiently.
+
+
