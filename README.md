@@ -16,52 +16,41 @@ It supports running both with Docker (recommended) and without a docker (using a
 
 tiktok-trending-pipeline/
 │
-│
-├──src/
-    ├── scraper/                # Scrapes TikTok trending videos into JSON
-    │   ├── scraper1.py
-    │   ├── requirements_scraper.txt
-    │   ├── Dockerfile
-    │   ├── tiktok_trending.json      
-    │
-    ├── multi_modal/            # Multimodal pipeline to process video metadata
-    │   ├── multimodal_pipeline.py
-    │   ├── multimodal_spark.py
-    │   ├── preprocess.py
-    │   ├── requirements_spark.txt
-    │   ├── Dockerfile
-    │   └── wait-for-it.sh      # For multiple database connection tries
-    │
-    ├── growth/                 # Growth detection logic
-    │   ├── growth_detection.py
-    │
-    ├── metrics/                # Pipeline metrics collection
-    │   ├── metrics_collector.py
-    │
-    ├── evaluation/                # Backtesting evaluation with historical data
-    │   ├── backtesting.py
-    │
-    │
-    ├── database/               # Database schema & setup
-    │   ├── full_file.sql
-    │   └── README.md
-    │
-    ├── airflow_dags/           # Airflow DAGs for orchestration
-    │   ├── dags/tiktok_pipeline_dag.py
-    │   ├── requirements_dag.txt
-    │   └── Dockerfile
-    │
-    ├── api/                    # Streamlit app for visualization
-    │   ├── streamlit_app.py
-    │   ├── requirements_api.txt
-    │   └── Dockerfile
-    │
-    ├── dashboard/                    # Tableau dashboard
-    │   ├── Book2.twb
-│
-├── docker-compose.yml      # Defines multi-container setup
-├── requirements_all.txt    # Combined dependencies for running without Docker
-└── README.md               # Project documentation
+├── src/
+│ ├── scraper/
+│ │ ├── scraper1.py
+│ │ ├── requirements_scraper.txt
+│ │ ├── Dockerfile
+│ │ ├── tiktok_trending.json
+│ ├── multi_modal/
+│ │ ├── multimodal_pipeline.py
+│ │ ├── multimodal_spark.py
+│ │ ├── preprocess.py
+│ │ ├── requirements_spark.txt
+│ │ ├── Dockerfile
+│ │ └── wait-for-it.sh
+│ ├── growth/
+│ │ ├── growth_detection.py
+│ ├── metrics/
+│ │ ├── metrics_collector.py
+│ ├── evaluation/
+│ │ ├── backtesting.py
+│ ├── database/
+│ │ ├── full_file.sql
+│ │ └── README.md
+│ ├── airflow_dags/
+│ │ ├── dags/tiktok_pipeline_dag.py
+│ │ ├── requirements_dag.txt
+│ │ └── Dockerfile
+│ ├── api/
+│ │ ├── streamlit_app.py
+│ │ ├── requirements_api.txt
+│ │ └── Dockerfile
+│ ├── dashboard/
+│ │ ├── Book2.twb
+├── docker-compose.yml
+├── requirements_all.txt
+└── README.md
 
 --- 
 
@@ -92,7 +81,6 @@ tiktok-trending-pipeline/
 - **API, Dashboard (Tableau, Streamlit with FastAPI)**
   - Tableau Dashboard is created using `keywords_clean.csv` file
   - Streamlit also does the same thing to be interactive
-
 
 
 
