@@ -69,9 +69,9 @@ jobs:
           docker build -t ghcr.io/${{ github.actor }}/scraper:latest src/scraper/
           docker push ghcr.io/${{ github.actor }}/scraper:latest
 
-      - name: Build multimodal image
+      - name: Build multimodal Docker image
         run: |
-          docker build -t ghcr.io/${{ github.actor }}/multimodal:latest src/multi_modal
+          docker build -t ghcr.io/${{ github.actor }}/multimodal:latest -f src/multi_modal/Dockerfile .
           docker push ghcr.io/${{ github.actor }}/multimodal:latest
 
       - name: Build Airflow DAGs Docker Image
