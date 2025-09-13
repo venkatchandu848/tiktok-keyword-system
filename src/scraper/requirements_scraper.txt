@@ -1,0 +1,8 @@
+TikTokApi
+aiohttp
+async-timeout
+playwright
+requests
+tenacity                  # for retry logic
+ratelimit                 # for rate limiting
+concurrent-log-handler    # optional, for logging in multi-threading

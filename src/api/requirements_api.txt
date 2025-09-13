@@ -1,0 +1,8 @@
+streamlit==1.30.0
+pandas==2.1.2
+plotly==5.16.0
+pycountry==22.3.5
+fastapi==0.95.2
+uvicorn[standard]==0.22.0
+python-multipart==0.0.6
+pydantic==1.10.11
