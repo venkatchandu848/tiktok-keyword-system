@@ -2,7 +2,7 @@
 FROM apache/airflow:2.8.1-python3.11
 
 # Install extra Airflow providers
-COPY airflow_dags/requirements_dag.txt /requirements_dag.txt
+COPY src/airflow_dags/requirements_dag.txt /requirements_dag.txt
 RUN pip install --no-cache-dir -r /requirements_dag.txt
 
 # Copy repo into Airflow
