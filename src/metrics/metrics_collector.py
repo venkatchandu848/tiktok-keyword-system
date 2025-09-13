@@ -1,6 +1,6 @@
 import psycopg2
 from psycopg2.extras import execute_values
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 import os
 
 DB_HOST = os.getenv("DB_HOST", "localhost")
@@ -9,11 +9,13 @@ DB_NAME = os.getenv("DB_NAME", "tiktok")
 DB_USER = os.getenv("DB_USER", "postgres")
 DB_PASS = os.getenv("DB_PASS", "postgres")
 
+
 def get_db_conn():
     return psycopg2.connect(
         host=DB_HOST, port=DB_PORT,
         dbname=DB_NAME, user=DB_USER, password=DB_PASS
     )
+
 
 def collect_pipeline_metrics():
     conn = get_db_conn()

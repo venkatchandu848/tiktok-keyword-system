@@ -11,8 +11,9 @@ DATA_PATH = "keywords_clean.csv"
 
 @functools.lru_cache(maxsize=1)
 def load_df():
-    df = pd.read_csv(DATA_PATH, parse_dates=["detected_at","posted_at"], low_memory=False)
+    df = pd.read_csv(DATA_PATH, parse_dates=["detected_at", "posted_at"], low_memory=False)
     return df
+
 
 def apply_filters(df, regions=None, categories=None, modalities=None, start_date=None, end_date=None):
     dff = df.copy()
@@ -28,6 +29,7 @@ def apply_filters(df, regions=None, categories=None, modalities=None, start_date
         dff = dff[dff["posted_at"] <= pd.to_datetime(end_date)]
     return dff
 
+
 @app.get("/api/keywords")
 def get_keywords(
     regions: Optional[List[str]] = Query(None),
@@ -39,11 +41,12 @@ def get_keywords(
     dff = apply_filters(df, regions, categories, modalities)
     # Aggregate by keyword
     agg = dff.groupby("keyword", as_index=False).agg(
-        total_engagement=("engagement_total","sum"),
-        plays=("playCount","sum"),
-        count_videos=("video_id","nunique")
+        total_engagement=("engagement_total", "sum"),
+        plays=("playCount", "sum"),
+        count_videos=("video_id", "nunique")
     ).sort_values("total_engagement", ascending=False).head(top_n)
     return agg.to_dict(orient="records")
+
 
 @app.get("/api/download")
 def download_filtered_csv(

@@ -20,12 +20,14 @@ DB_PASS = os.getenv("DB_PASS", "postgres")
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("growth_detection")
-                           
+
+                        
 @retry(wait=wait_exponential(multiplier=1, min=2, max=10), stop=stop_after_attempt(3))
 def get_db_conn():
     return psycopg2.connect(
         host=DB_HOST, port=DB_PORT, dbname=DB_NAME, user=DB_USER, password=DB_PASS
     )
+
 
 def detect_trending_keywords(
     time_window="hourly",

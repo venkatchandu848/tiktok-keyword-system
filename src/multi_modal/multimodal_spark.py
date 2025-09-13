@@ -4,7 +4,6 @@ import json
 import os
 import tempfile
 import shutil
-from datetime import datetime, timezone
 
 # Import functions from multimodal_pipeline
 from multimodal_pipeline import process_video_entry, save_keywords_bulk
@@ -13,12 +12,12 @@ from multimodal_pipeline import process_video_entry, save_keywords_bulk
 # Spark Job
 # ---------------------------
 
+
 def process_partition(entries):
     """
     Runs process_video_entry for each video in this partition.
     Returns list of keyword rows.
     """
-    import tempfile, shutil
     tmpdir = tempfile.mkdtemp(prefix="tt_mm_spark_")
     rows = []
     for entry in entries:
@@ -29,6 +28,7 @@ def process_partition(entries):
             print(f"[process_partition] failed for {entry.get('id')}: {e}")
     shutil.rmtree(tmpdir, ignore_errors=True)
     return rows
+
 
 def main():
     spark = SparkSession.builder \

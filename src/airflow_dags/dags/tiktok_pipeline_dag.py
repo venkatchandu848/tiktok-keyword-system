@@ -3,7 +3,7 @@ from airflow.providers.docker.operators.docker import DockerOperator
 from airflow.providers.postgres.operators.postgres import PostgresOperator
 from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta
-import sys, os
+import os
 from growth import growth_detection
 from metrics import metrics_collector
 from multi_modal.preprocess import preprocess_keywords
@@ -55,12 +55,12 @@ with DAG(
 
     # Step 3: Creating clean keywords csv (for API and dashboard)
     preprocess_task = PythonOperator(
-    task_id="preprocess_keywords",
-    python_callable=preprocess_keywords,
-    op_kwargs={
-        "input_path": "/opt/airflow/data/keywords.csv",
-        "output_path": "/opt/airflow/data/keywords_clean.csv",
-    },
+        task_id="preprocess_keywords",
+        python_callable=preprocess_keywords,
+        op_kwargs={
+            "input_path": "/opt/airflow/data/keywords.csv",
+            "output_path": "/opt/airflow/data/keywords_clean.csv",
+        },
     )
     
     # Step 4: refresh TimescaleDB rollups

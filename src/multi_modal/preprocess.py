@@ -15,7 +15,7 @@ def preprocess_keywords(input_path: str = "keywords.csv", output_path: str = "ke
     def parse_stats(row):
         try:
             return json.loads(row)
-        except:
+        except Exception:
             return {}
 
     stats = df["stats_json"].apply(parse_stats)
@@ -23,9 +23,9 @@ def preprocess_keywords(input_path: str = "keywords.csv", output_path: str = "ke
     # Expand into new columns
     df["collectCount"] = stats.apply(lambda x: x.get("collectCount", 0))
     df["commentCount"] = stats.apply(lambda x: x.get("commentCount", 0))
-    df["diggCount"]    = stats.apply(lambda x: x.get("diggCount", 0))
-    df["playCount"]    = stats.apply(lambda x: x.get("playCount", 0))
-    df["shareCount"]   = stats.apply(lambda x: x.get("shareCount", 0))
+    df["diggCount"] = stats.apply(lambda x: x.get("diggCount", 0))
+    df["playCount"] = stats.apply(lambda x: x.get("playCount", 0))
+    df["shareCount"] = stats.apply(lambda x: x.get("shareCount", 0))
 
     # --------- Derived KPIs ---------
     df["engagement_total"] = (
@@ -59,6 +59,7 @@ def preprocess_keywords(input_path: str = "keywords.csv", output_path: str = "ke
     # --------- Export ---------
     df.to_csv(output_path, index=False)
     print(f"✅ keywords_clean.csv generated at {output_path}")
+
 
 # Allow both direct run & Airflow callable
 if __name__ == "__main__":

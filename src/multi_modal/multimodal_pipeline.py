@@ -20,9 +20,7 @@ import tempfile
 import shutil
 import requests
 import time
-from pathlib import Path
 from datetime import datetime, timezone
-import torch
 import psycopg2
 from psycopg2.extras import execute_values
 
@@ -30,7 +28,7 @@ from psycopg2.extras import execute_values
 import whisper
 import pytesseract
 from PIL import Image
-from transformers import pipeline, AutoProcessor, VisionEncoderDecoderModel
+from transformers import AutoProcessor, VisionEncoderDecoderModel
 
 # NLP
 import nltk
@@ -45,7 +43,6 @@ DetectorFactory.seed = 0  # deterministic language detection
 # from pyspark.sql import SparkSession
 # from airflow import DAG
 # from airflow.operators.python import PythonOperator
-from datetime import datetime, timedelta
 
 # Load NLTK stopwords (run once; may download)
 try:
@@ -53,6 +50,7 @@ try:
 except LookupError:
     nltk.download("stopwords")
     STOPWORDS = set(stopwords.words("english"))
+
 
 def get_stopwords_for_lang(lang_code):
     """
@@ -86,7 +84,6 @@ DB_NAME = os.getenv("DB_NAME", "tiktok")
 DB_USER = os.getenv("DB_USER", "postgres")
 DB_PASSWORD = os.getenv("DB_PASSWORD", "postgres")
 
-
 # How many frames per video to sample (e.g., 3 frames: start, middle, end)
 FRAMES_PER_VIDEO = int(os.getenv("FRAMES_PER_VIDEO", "3"))
 
@@ -98,7 +95,6 @@ WHISPER_MODEL = os.getenv("WHISPER_MODEL", "tiny")
 
 # Use a small image captioner; this downloads model weights when first used
 IMAGE_CAPTION_MODEL = os.getenv("IMAGE_CAPTION_MODEL", "nlpconnect/vit-gpt2-image-captioning")
-
 
 # ---------------------------
 # Helpers: DB
@@ -120,6 +116,7 @@ def get_db_conn(retries=5, delay=5):
             print(f"[test] Database connection failed (attempt {i+1}/{retries}): {e}")
             time.sleep(delay)
     #raise Exception("Could not connect to DB after multiple retries")    
+
 
 def save_keywords_bulk(rows):
     """
@@ -148,6 +145,7 @@ def save_keywords_bulk(rows):
     finally:
         if conn:
             conn.close()
+
 
 def save_keywords_csv(rows, out_path="keywords.csv"):
     """
@@ -191,7 +189,7 @@ def download_video(url, out_path, timeout=30):
     except Exception as e:
         print(f"[download_video] failed for {url}: {e}")
         return False
-    
+
 
 def extract_audio_ffmpeg(video_path, audio_out_path):
     # Extract mono 16k wav
@@ -264,6 +262,7 @@ print("[pipeline] loading image-caption model:", IMAGE_CAPTION_MODEL)
 caption_processor = AutoProcessor.from_pretrained(IMAGE_CAPTION_MODEL)
 caption_model = VisionEncoderDecoderModel.from_pretrained(IMAGE_CAPTION_MODEL)
 
+
 def transcribe_audio(audio_path):
     try:
         res = asr_model.transcribe(str(audio_path))
@@ -273,6 +272,7 @@ def transcribe_audio(audio_path):
         print(f"[transcribe_audio] error: {e}")
         return ""
 
+
 def ocr_frame_text(frame_path):
     try:
         img = Image.open(frame_path)
@@ -281,6 +281,7 @@ def ocr_frame_text(frame_path):
     except Exception as e:
         print(f"[ocr_frame_text] error: {e}")
         return ""
+
 
 def image_caption(frame_path):
     try:
@@ -298,6 +299,7 @@ def image_caption(frame_path):
 # ---------------------------
 
 WORD_RE = re.compile(r"[A-Za-zÀ-ÖØ-öø-ÿ0-9']{2,}")
+
 
 def extract_keywords_multilingual(text, top_k=20):
     """
@@ -331,6 +333,7 @@ def extract_keywords_multilingual(text, top_k=20):
 # ---------------------------
 # Main pipeline
 # ---------------------------
+
 
 def process_video_entry(entry, tmpdir):
     """
@@ -451,6 +454,7 @@ def process_video_entry(entry, tmpdir):
         print(f"[process_video_entry] no playAddr for video {video_id}; skipping download")
     return rows
 
+
 def main():
     # load json
     SCRAPER_JSON = os.path.join(os.path.dirname(__file__), "..", "scraper", "tiktok_trending.json")
@@ -497,6 +501,7 @@ def main():
     # cleanup tmpdir
     shutil.rmtree(tmpdir, ignore_errors=True)
     print("[main] done.")
+
 
 if __name__ == "__main__":
     main()

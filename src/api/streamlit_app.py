@@ -1,11 +1,8 @@
-import os 
 import streamlit as st
 import pandas as pd
 import plotly.express as px
 import pycountry
-from datetime import datetime
 from pathlib import Path
-import datetime as dt
 
 # ---- Helpers ----,
 @st.cache_data
@@ -20,7 +17,6 @@ def load_data(path=None):
         raise FileNotFoundError(f"❌ keywords_clean.csv not found at {path}")
                                 
     df = pd.read_csv(path, parse_dates=["detected_at", "posted_at"], low_memory=False)
-
     df["posted_at"] = pd.to_datetime(df["posted_at"], errors="coerce")
     df["detected_at"] = pd.to_datetime(df["detected_at"], errors="coerce")
 
@@ -60,12 +56,8 @@ def filter_df(df, regions, categories, modalities, start_date, end_date, top_n):
     if modalities:
         dff = dff[dff["modality"].isin(modalities)]
 
-    start_date_ts = pd.Timestamp(start_date).replace(tzinfo=pd.Timestamp.utcnow().tz)
-    end_date_ts = pd.Timestamp(end_date).replace(tzinfo=pd.Timestamp.utcnow().tz)
-
     # Or simpler: just compare using naive timestamps
-    dff = dff[(dff["posted_at"] >= pd.Timestamp(start_date)) &
-            (dff["posted_at"] <= pd.Timestamp(end_date) + pd.Timedelta(days=1))]
+    dff = dff[(dff["posted_at"] >= pd.Timestamp(start_date)) & (dff["posted_at"] <= pd.Timestamp(end_date) + pd.Timedelta(days=1))]
 
     if top_n and "engagement_total" in dff.columns:
         dff = dff.nlargest(top_n, "engagement_total")
@@ -91,8 +83,6 @@ selected_categories = st.sidebar.multiselect("Category", options=categories, def
 modalities = sorted(df["modality"].dropna().unique().tolist())
 selected_modalities = st.sidebar.multiselect("Modality", options=modalities, default=None)
 
-
-
 # Date range
 min_date = df["posted_at"].min().date()
 max_date = df["posted_at"].max().date()
@@ -111,10 +101,8 @@ filter_regions = selected_regions if selected_regions else df["region"].unique()
 filter_categories = selected_categories if selected_categories else df["category"].unique().tolist()
 filter_modalities = selected_modalities if selected_modalities else df["modality"].unique().tolist()
 
-
 dff = filter_df(df, filter_regions, filter_categories, filter_modalities, start_date_utc, end_date_utc, top_n)
-
-st.sidebar.markdown(f"**Rows after filter:** {len(dff)}")
+st.sidebar.markdown(f"**Rows after filter: ** {len(dff)}")
 
 # --------- Layout: 2x2 grid -----------
 col1, col2 = st.columns(2)
@@ -133,25 +121,24 @@ with col1:
         modal_for_kw = (kw_agg.sort_values("total_engagement", ascending=False).drop_duplicates("keyword")[["keyword","modality"]])
         top_kw = top_kw.merge(modal_for_kw, on="keyword", how="left")
         fig1 = px.bar(top_kw, x="total_engagement", y="keyword", orientation="h",
-                    color="modality", labels={"total_engagement":"Engagement (sum)"}, hover_data=["total_engagement"])
-        fig1.update_layout(yaxis={'categoryorder':'total ascending'}, height=600)
+                    color="modality", labels={"total_engagement": "Engagement (sum)"}, hover_data=["total_engagement"])
+        fig1.update_layout(yaxis={'categoryorder': 'total ascending'}, height=600)
         st.plotly_chart(fig1, use_container_width=True)
     else:
         st.info("No data available for the selected filters.")
-
 
 with col2:
     # Map: Engagement rate by region
     st.subheader("Avg Engagement Rate by Region")
     if not dff.empty:
-        map_df = dff.groupby(["region","iso3"], as_index=False).agg(avg_engagement_rate=("engagement_rate","mean"),
-                                                                sum_plays=("playCount","sum"),
-                                                                count_videos=("video_id","nunique"))
+        map_df = dff.groupby(["region","iso3"], as_index=False).agg(avg_engagement_rate=("engagement_rate", "mean"),
+                                                                sum_plays=("playCount", "sum"),
+                                                                count_videos=("video_id", "nunique"))
         map_df = map_df.dropna(subset=["iso3"])
         if not map_df.empty:
             fig2 = px.choropleth(map_df, locations="iso3", color="avg_engagement_rate",
-                                hover_name="region", hover_data=["sum_plays","count_videos"],
-                                color_continuous_scale="YlOrRd", labels={"avg_engagement_rate":"Avg engagement rate"})
+                                hover_name="region", hover_data=["sum_plays", "count_videos"],
+                                color_continuous_scale="YlOrRd", labels={"avg_engagement_rate": "Avg engagement rate"})
             fig2.update_layout(height=600)
             st.plotly_chart(fig2, use_container_width=True)
         else:
@@ -186,6 +173,7 @@ with col3:
             st.plotly_chart(fig3, use_container_width=True)
     else:
         st.info("No data available for scatter plot.")
+
 with col4:
     # Category distribution (bar) with engagement rate
     if not dff.empty:
@@ -205,7 +193,6 @@ with col4:
             st.plotly_chart(fig4, use_container_width=True)
     else:
         st.info("No data available for category chart.")
-
 
 # ---------- Bottom: data table and download ----------
 st.markdown("---")
