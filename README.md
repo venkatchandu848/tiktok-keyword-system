@@ -56,15 +56,14 @@ tiktok-keyword-system/
 │   │   └── Dockerfile
 │   │
 │   └── dashboard/
-│       └── Book2.twb
+│       ├── Book2.twb  # Tableau Dashboard
+        └── tiktok_analysis.png  # Sample dashboard
 │
 ├── docker-compose.yml
 ├── requirements_all.txt
 ├── README.md
 ├── .gitignore
 ├── .env
-├── Book2.twbr     # Tableau Dashboard
-└── tiktok_analysis.png    # Sample tableau dashboard
 ```
 
 --- 
