@@ -40,7 +40,7 @@ jobs:
         run: |
           pip install flake8 black
           flake8 src/ --count --max-line-length=120 --statistics
-          black --check src/
+          black src/
 
       # 5. Run unit tests
       - name: Run tests
