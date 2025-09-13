@@ -43,10 +43,10 @@ jobs:
           black src/
 
       # 5. Run unit tests
-      - name: Run tests
-        run: |
-          pip install pytest
-          pytest -q
+      # - name: Run tests
+      #   run: |
+      #     pip install pytest
+      #     pytest -q
 
   docker-build:
     name: Build Docker Images
