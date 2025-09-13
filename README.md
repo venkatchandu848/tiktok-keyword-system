@@ -58,29 +58,30 @@ tiktok-trending-pipeline/
 ## ⚡ Workflow Overview
 
 - **Scraper (`scraper1.py`)**
-  - Collects trending TikTok video metadata
-  - Saves as `tiktok_trending.json`
+  - Collects trending TikTok video metadata.
+  - Saves as `tiktok_trending.json`.
 
 - **Multimodal Pipeline (`multimodal_pipeline.py` / `multimodal_spark.py`)**
-  - Processes video metadata → extracts keywords, embeddings, features
-  - Outputs `keywords.csv`
+  - Processes video metadata → extracts keywords, embeddings, features.
+  - Outputs `keywords.csv`.
 
 - **Preprocessing (`preprocess.py`)**
-  - Cleans `keywords.csv`
-  - Saves as `keywords_clean.csv`
+  - Cleans `keywords.csv`.
+  - Saves as `keywords_clean.csv`.
 
 - **Database (TimescaleDB/Postgres)**
-  - Stores keywords and metadata
-  - Provides hypertables, indexes, and rollups
+  - Stores keywords and metadata.
+  - Provides hypertables, indexes, and rollups.
 
 - **Metrics, growth, evaluation (`growth_detection.py`, `backtesting.py`, `metrics_collector.py`)**
-  - Backtesting: Testing with historical data
-  - Growth: Growth detection with threshold and engagement variables
+  - Backtesting: Testing with historical data.
+  - Growth: Growth detection with threshold and engagement variables.
   - Metrics: Unique keywords, keywords extracted metrics extracted.
 
 - **API, Dashboard (Tableau, Streamlit with FastAPI)**
-  - Tableau Dashboard is created using `keywords_clean.csv` file
-  - Streamlit also does the same thing to be interactive
+  - Tableau Dashboard is created using `keywords_clean.csv` file.
+  - Visualizes top keywords, engagement rates, virality vs discussion, and category metrics.
+  - Streamlit also does the same thing to be interactive.
 
 
 
@@ -94,6 +95,10 @@ venv\Scripts\activate       # Windows
 pip install --upgrade pip
 pip install -r requirements_all.txt
 
-### 2. Run components
-- **Scraper
+### 2\. Run components
+- **Scraper**
+  Run the scraper to fetch trending tiktok videos:
+
+  ```bash
+  python src/scraper/scraper1.py
     
