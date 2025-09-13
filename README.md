@@ -17,37 +17,47 @@ It supports running both with Docker (recommended) and without a docker (using a
 tiktok-trending-pipeline/
 │
 ├── src/
-│ ├── scraper/
-│ │ ├── scraper1.py
-│ │ ├── requirements_scraper.txt
-│ │ ├── Dockerfile
-│ │ ├── tiktok_trending.json
-│ ├── multi_modal/
-│ │ ├── multimodal_pipeline.py
-│ │ ├── multimodal_spark.py
-│ │ ├── preprocess.py
-│ │ ├── requirements_spark.txt
-│ │ ├── Dockerfile
-│ │ └── wait-for-it.sh
-│ ├── growth/
-│ │ ├── growth_detection.py
-│ ├── metrics/
-│ │ ├── metrics_collector.py
-│ ├── evaluation/
-│ │ ├── backtesting.py
-│ ├── database/
-│ │ ├── full_file.sql
-│ │ └── README.md
-│ ├── airflow_dags/
-│ │ ├── dags/tiktok_pipeline_dag.py
-│ │ ├── requirements_dag.txt
-│ │ └── Dockerfile
-│ ├── api/
-│ │ ├── streamlit_app.py
-│ │ ├── requirements_api.txt
-│ │ └── Dockerfile
-│ ├── dashboard/
-│ │ ├── Book2.twb
+│   ├── scraper/
+│   │   ├── scraper1.py
+│   │   ├── requirements_scraper.txt
+│   │   ├── Dockerfile
+│   │   └── tiktok_trending.json          # output of scraper
+│   │
+│   ├── multi_modal/
+│   │   ├── multimodal_pipeline.py
+│   │   ├── multimodal_spark.py
+│   │   ├── preprocess.py
+│   │   ├── requirements_spark.txt
+│   │   ├── Dockerfile
+│   │   └── wait-for-it.sh
+│   │
+│   ├── growth/
+│   │   └── growth_detection.py
+│   │
+│   ├── metrics/
+│   │   └── metrics_collector.py
+│   │
+│   ├── evaluation/
+│   │   └── backtesting.py
+│   │
+│   ├── database/
+│   │   ├── full_file.sql                 # TimescaleDB schema
+│   │   └── README.md
+│   │
+│   ├── airflow_dags/
+│   │   ├── dags/
+│   │   │   └── tiktok_pipeline_dag.py
+│   │   ├── requirements_dag.txt
+│   │   └── Dockerfile
+│   │
+│   ├── api/
+│   │   ├── streamlit_app.py
+│   │   ├── requirements_api.txt
+│   │   └── Dockerfile
+│   │
+│   └── dashboard/
+│       └── Book2.twb
+│
 ├── docker-compose.yml
 ├── requirements_all.txt
 └── README.md
@@ -102,4 +112,6 @@ pip install -r requirements_all.txt
 
   ```bash
   python src/scraper/scraper1.py
-    
+  ```
+
+- ** 
