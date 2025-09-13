@@ -6,6 +6,7 @@ DB_NAME = "tiktok"
 DB_USER = "postgres"
 DB_PASS = "postgres"
 
+
 def run_backtest(days_back=7, horizon_days=3):
     """
     Re-run growth detection as if 'days_back' days ago.

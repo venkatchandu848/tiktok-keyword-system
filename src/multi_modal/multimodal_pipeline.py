@@ -10,10 +10,11 @@ Prototype multi-modal extraction:
 - extracts keywords (simple tokenization + stopword removal)
 - writes keyword rows into Postgres (suitable for TimescaleDB aggregation)
 
-Caveats: heavy models and system libs required. This is a prototype; production needs batching, parallel workers, retries, rate-limiting, and better NER/keyword extraction.
+Caveats: heavy models and system libs required. This is a prototype; 
+production needs batching, parallel workers, retries, rate-limiting, and better NER/keyword extraction.
 """
 
-import os 
+import os
 import json
 import subprocess
 import tempfile
@@ -68,6 +69,7 @@ def get_stopwords_for_lang(lang_code):
 # Configuration (env or defaults)
 # ---------------------------
 
+
 # When loading life locally.
 SCRAPER_JSON = os.path.join(os.path.dirname(__file__), "..", "scraper", "tiktok_trending.json")
 SCRAPER_JSON = os.path.abspath(SCRAPER_JSON)
@@ -79,7 +81,7 @@ with open(SCRAPER_JSON, "r", encoding="utf-8") as f:
     video_metadata = json.load(f)
 
 DB_HOST = os.getenv("DB_HOST", "tiktok-db")
-DB_PORT = int(os.getenv("DB_PORT", "5432")) 
+DB_PORT = int(os.getenv("DB_PORT", "5432"))
 DB_NAME = os.getenv("DB_NAME", "tiktok")
 DB_USER = os.getenv("DB_USER", "postgres")
 DB_PASSWORD = os.getenv("DB_PASSWORD", "postgres")
@@ -100,6 +102,7 @@ IMAGE_CAPTION_MODEL = os.getenv("IMAGE_CAPTION_MODEL", "nlpconnect/vit-gpt2-imag
 # Helpers: DB
 # ---------------------------
 
+
 def get_db_conn(retries=5, delay=5):
     for i in range(retries):
         try:
@@ -115,7 +118,7 @@ def get_db_conn(retries=5, delay=5):
         except Exception as e:
             print(f"[test] Database connection failed (attempt {i+1}/{retries}): {e}")
             time.sleep(delay)
-    #raise Exception("Could not connect to DB after multiple retries")    
+    # raise Exception("Could not connect to DB after multiple retries")    
 
 
 def save_keywords_bulk(rows):
@@ -130,7 +133,8 @@ def save_keywords_bulk(rows):
         with conn:
             with conn.cursor() as cur:
                 sql = """
-                INSERT INTO keywords (video_id, keyword, modality, confidence, detected_at, posted_at, region, category, stats)
+                INSERT INTO keywords (video_id, keyword, modality, 
+                                      confidence, detected_at, posted_at, region, category, stats)
                 VALUES %s
                 """
                 # Add stats from metadata if available
@@ -155,8 +159,8 @@ def save_keywords_csv(rows, out_path="keywords.csv"):
     import csv
     if not rows:
         return
-    
-    header = ["video_id", "keyword", "modality", "confidence", "detected_at", "posted_at", "region", "category", "stats_json"]
+    header = ["video_id", "keyword", "modality", "confidence", "detected_at", 
+              "posted_at", "region", "category", "stats_json"]
     file_exists = os.path.isfile(out_path)
 
     with open(out_path, "a", newline="", encoding="utf-8") as f:
@@ -258,7 +262,7 @@ print("[pipeline] loading ASR model:", WHISPER_MODEL)
 asr_model = whisper.load_model(WHISPER_MODEL)  # loads to CPU or GPU as available
 
 print("[pipeline] loading image-caption model:", IMAGE_CAPTION_MODEL)
-#image_captioner = pipeline("image-captioning", model=IMAGE_CAPTION_MODEL, device=0 if torch.cuda.is_available() else -1)
+# image_captioner = pipeline("image-captioning", model=IMAGE_CAPTION_MODEL, device=0 if torch.cuda.is_available() else -1)
 caption_processor = AutoProcessor.from_pretrained(IMAGE_CAPTION_MODEL)
 caption_model = VisionEncoderDecoderModel.from_pretrained(IMAGE_CAPTION_MODEL)
 
@@ -297,6 +301,7 @@ def image_caption(frame_path):
 # ---------------------------
 # Helpers: keyword extraction (simple)
 # ---------------------------
+
 
 WORD_RE = re.compile(r"[A-Za-zÀ-ÖØ-öø-ÿ0-9']{2,}")
 
@@ -354,16 +359,14 @@ def process_video_entry(entry, tmpdir):
     detected_at = datetime.now(timezone.utc)
 
     # Get posted_at from TikTok API metadata (assume 'createTime' is in seconds since epoch)
-    try: 
+    try:
         create_time = entry.get("createTime") or entry.get("video", {}).get("createTime")
         if create_time:
             posted_at = datetime.fromtimestamp(int(create_time), tz=timezone.utc)
         else:
-            posted_at = detected_at # Fallback
+            posted_at = detected_at  # Fallback
     except Exception:
         posted_at = detected_at
-
-
     # You can pass posted_at to rows if you want to store it in DB
     # Example: (video_id, kw, modality, 1.0, now, posted_at)
     text_sources = []
@@ -379,7 +382,7 @@ def process_video_entry(entry, tmpdir):
 
     # extract keywords from caption/music
     for modality, txt in text_sources:
-        try: 
+        try:
             kws = extract_keywords_multilingual(txt)
             for kw in kws:
                 # Add category and stats as None or empty dict
@@ -390,22 +393,22 @@ def process_video_entry(entry, tmpdir):
     # 2) If we have a playable URL, try to download and run audio+visual processing
     if play_addr:
         video_path = os.path.join(tmpdir, f"{video_id}.mp4")
-        try: 
+        try:
             success = download_video(play_addr, video_path)
             if success:
                 # audio
                 audio_path = os.path.join(tmpdir, f"{video_id}.wav")
-                try: 
+                try:
                     if extract_audio_ffmpeg(video_path, audio_path):
                         print(f"[audio] extracted audio for {video_id} -> {audio_path}")
                         transcript = transcribe_audio(audio_path)
                         print(f"[whisper] transcript (first 100 chars) for {video_id}: {transcript[:100]}")
                         kws = extract_keywords_multilingual(transcript)
                         for kw in kws:
-                            rows.append((video_id, kw, "transcript", 1.0, detected_at, posted_at, region, category, stats))
+                            rows.append((video_id, kw, "transcript", 1.0, 
+                                         detected_at, posted_at, region, category, stats))
                 except Exception as e:
                     print(f"[process_video_entry] Audio processing error for video {video_id}: {e}")
-                
                 print(f"[download_video] {video_id} -> {video_path}, success={success}")
 
                 # frames
@@ -429,21 +432,22 @@ def process_video_entry(entry, tmpdir):
                             for kw in kws:
                                 rows.append((video_id, kw, "ocr", 1.0, detected_at, posted_at, region, category, stats))
                         except Exception as e:
-                            print(f"[process_video_entry] OCR error in frame {fname} for video {video_id}: {e}")
-                            
+                            print(f"[process_video_entry] OCR error in frame {fname} for video {video_id}: {e}") 
                         # image caption
-                        try: 
+                        try:
                             cap_text = image_caption(fpath)
                             print(f"[caption] {video_id} frame {fname} -> {cap_text}")
                             kws = extract_keywords_multilingual(cap_text)
                             for kw in kws:
-                                rows.append((video_id, kw, "image_caption", 1.0, detected_at, posted_at, region, category, stats))
+                                rows.append((video_id, kw, "image_caption", 1.0, 
+                                             detected_at, posted_at, region, category, stats))
                         except Exception as e:
-                            print(f"[process_video_entry] Image caption error in frame {fname} for video {video_id}: {e}")
+                            print(f"[process_video_entry] Image caption error in frame {fname}"
+                                  f"for video {video_id}: {e}")
                     # cleanup video file so we don't store it
                 try:
                     os.remove(video_path)
-                except:
+                except Exception:
                     pass
             else:
                 print(f"[process_video_entry] could not download video {video_id}; skipping audio/frames")

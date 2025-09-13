@@ -15,8 +15,7 @@ def load_data(path=None):
         # If using docker container, then
         # path = "/app/data/keywords_clean.csv"
     if not path.exists():
-        raise FileNotFoundError(f"❌ keywords_clean.csv not found at {path}")
-                                
+        raise FileNotFoundError(f"❌ keywords_clean.csv not found at {path}")                        
     df = pd.read_csv(path, parse_dates=["detected_at", "posted_at"], low_memory=False)
     df["posted_at"] = pd.to_datetime(df["posted_at"], errors="coerce")
     df["detected_at"] = pd.to_datetime(df["detected_at"], errors="coerce")
@@ -26,7 +25,6 @@ def load_data(path=None):
               "engagement_total", "engagement_rate", "virality_index", "discussion_rate", "save_rate"]:
         if c not in df.columns:
             df[c] = 0
-    
     # Standardize region names: uppercase and strip
     if "region" in df.columns:
         df["region"] = df["region"].astype(str).str.strip().str.upper()
@@ -39,12 +37,13 @@ def load_data(path=None):
             country = pycountry.countries.get(alpha_2=code)
             if country:
                 return country.alpha_3
-        except:
+        except Exception:
             try:
                 return pycountry.countries.lookup(code).alpha_3
             except Exception:
                 return None
-    df["iso3"] = df["region"].apply(lambda r: iso2_to_iso3(r) if isinstance(r, str) and len(r) == 2 else iso2_to_iso3(r))
+    df["iso3"] = df["region"].apply(lambda r: iso2_to_iso3(r) if isinstance(r, str)
+                                    and len(r) == 2 else iso2_to_iso3(r))
     return df
 
 
@@ -59,8 +58,8 @@ def filter_df(df, regions, categories, modalities, start_date, end_date, top_n):
         dff = dff[dff["modality"].isin(modalities)]
 
     # Or simpler: just compare using naive timestamps
-    dff = dff[(dff["posted_at"] >= pd.Timestamp(start_date)) 
-                & (dff["posted_at"] <= pd.Timestamp(end_date) + pd.Timedelta(days=1))]
+    dff = dff[(dff["posted_at"] >= pd.Timestamp(start_date))
+               & (dff["posted_at"] <= pd.Timestamp(end_date) + pd.Timedelta(days=1))]
 
     if top_n and "engagement_total" in dff.columns:
         dff = dff.nlargest(top_n, "engagement_total")
@@ -116,17 +115,18 @@ with col1:
     st.subheader("Top Keywords by Engagement")
     if not dff.empty:
         kw_agg = (dff.groupby(["keyword", "modality"], as_index=False)
-                .agg(total_engagement=("engagement_total", "sum"),
-                        plays=("playCount", "sum"))
-                .sort_values("total_engagement", ascending=False))
+                  .agg(total_engagement=("engagement_total", "sum"),
+                     plays=("playCount", "sum"))
+                     .sort_values("total_engagement", ascending=False))
         top_kw = kw_agg.groupby("keyword", as_index=False).agg(total_engagement=("total_engagement", "sum"))
         top_kw = top_kw.sort_values("total_engagement", ascending=False).head(top_n)
         # Merge back modality info to color by most-common modality for keyword (simple heuristic)
         modal_for_kw = (kw_agg.sort_values("total_engagement", ascending=False)
-                        .drop_duplicates("keyword")[["keyword","modality"]])
+                        .drop_duplicates("keyword")[["keyword", "modality"]])
         top_kw = top_kw.merge(modal_for_kw, on="keyword", how="left")
         fig1 = px.bar(top_kw, x="total_engagement", y="keyword", orientation="h",
-                        color="modality", labels={"total_engagement": "Engagement (sum)"}, hover_data=["total_engagement"])
+                      color="modality", labels={"total_engagement": "Engagement (sum)"},
+                      hover_data=["total_engagement"])
         fig1.update_layout(yaxis={'categoryorder': 'total ascending'}, height=600)
         st.plotly_chart(fig1, use_container_width=True)
     else:
@@ -137,13 +137,14 @@ with col2:
     st.subheader("Avg Engagement Rate by Region")
     if not dff.empty:
         map_df = dff.groupby(["region", "iso3"], as_index=False).agg(avg_engagement_rate=("engagement_rate", "mean"),
-                                                                    sum_plays=("playCount", "sum"),
-                                                                    count_videos=("video_id", "nunique"))
+                                                                     sum_plays=("playCount", "sum"),
+                                                                     count_videos=("video_id", "nunique"))
         map_df = map_df.dropna(subset=["iso3"])
         if not map_df.empty:
             fig2 = px.choropleth(map_df, locations="iso3", color="avg_engagement_rate",
-                                    hover_name="region", hover_data=["sum_plays", "count_videos"],
-                                    color_continuous_scale="YlOrRd", labels={"avg_engagement_rate": "Avg engagement rate"})
+                                hover_name="region", hover_data=["sum_plays", "count_videos"],
+                                color_continuous_scale="YlOrRd",
+                                labels={"avg_engagement_rate": "Avg engagement rate"})
             fig2.update_layout(height=600)
             st.plotly_chart(fig2, use_container_width=True)
         else:
@@ -159,11 +160,11 @@ with col3:
     st.subheader("Virality (share rate) vs Discussion (comment rate)")
     if not dff.empty:
         scatter_df = (dff.groupby(["keyword"], as_index=False)
-                        .agg(avg_virality=("virality_index", "mean"),
-                            avg_discussion=("discussion_rate", "mean"),
-                            total_engagement=("engagement_total", "sum"),
-                            plays=("playCount", "sum"),
-                            category=("category", "first")))
+                      .agg(avg_virality=("virality_index", "mean"),
+                                avg_discussion=("discussion_rate", "mean"),
+                                total_engagement=("engagement_total", "sum"),
+                                plays=("playCount", "sum"),
+                                category=("category", "first")))
         # filter top keywords for readability
         top_keywords_list = top_kw["keyword"].tolist()
         scatter_df = scatter_df[scatter_df["keyword"].isin(top_keywords_list)]
@@ -172,9 +173,10 @@ with col3:
         else:
             fig3 = px.scatter(scatter_df, x="avg_virality", y="avg_discussion",
                                 size="total_engagement", color="category",
-                                hover_name="keyword", hover_data=["plays","total_engagement"],
-                                labels={"avg_virality":"Virality Index (shares/views)",
-                                        "avg_discussion": "Discussion Rate (comments/views)"})
+                                hover_name="keyword", hover_data=["plays", "total_engagement"],
+                                labels={
+                                    "avg_virality": "Virality Index (shares/views)",
+                                    "avg_discussion": "Discussion Rate (comments/views)"})
             fig3.update_layout(height=500)
             st.plotly_chart(fig3, use_container_width=True)
     else:
@@ -185,13 +187,14 @@ with col4:
     if not dff.empty:
         st.subheader("Category Engagement Comparison")
         cat_df = (dff.groupby("category", as_index=False)
-                  .agg(total_engagement=("engagement_total", "sum"), 
+                  .agg(total_engagement=("engagement_total", "sum"),
                        avg_engagement_rate=("engagement_rate", "mean"), count_videos=("video_id", "nunique")))
         if cat_df.empty:
             st.info("No category data.")
         else:
             cat_df = cat_df.sort_values("total_engagement", ascending=False)
-            fig4 = px.bar(cat_df, x="total_engagement", y="category", orientation="h", hover_data=["avg_engagement_rate", "count_videos"], labels={"total_engagement": "Total Engagement"})
+            fig4 = px.bar(cat_df, x="total_engagement", y="category", orientation="h", 
+                          hover_data=["avg_engagement_rate", "count_videos"], labels={"total_engagement": "Total Engagement"})
             fig4.update_layout(height=500)
             st.plotly_chart(fig4, use_container_width=True)
     else:
