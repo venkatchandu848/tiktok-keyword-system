@@ -168,12 +168,14 @@ This will start:
 
 # Docker Notes
 - Volumes
-| Service    | Volume           | Path (Container)       | Notes                                          |
-|------------|------------------|------------------------|------------------------------------------------|
-| multimodal | /multimodal/data | Stores keywords.csv and keywords_clean.csv           |
-| api / streamlit | /app/data      | Reads keywords_clean.csv for visualization           |
-| scraper    | /scraper/data    | Stores tiktok_trending.json  
+```
+| Service     | Volume          | Path (Container)                     | Notes                                           |
+|------------ |---------------- |-------------------------------------|------------------------------------------------|
+| multimodal  | shared-data     | /multimodal/data                     | Stores keywords.csv and keywords_clean.csv    |
+| api / streamlit | shared-data  | /app/data                            | Reads keywords_clean.csv for visualization    |
+| scraper     | shared-data     | /scraper/data                        | Stores tiktok_trending.json                   |
 
+```
 - Shared volumes ensure containers can access generated files across services.
 
 # Airflow DAG Overview
