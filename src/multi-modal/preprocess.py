@@ -62,6 +62,7 @@ def preprocess_keywords(input_path: str = "keywords.csv", output_path: str = "ke
 
 # Allow both direct run & Airflow callable
 if __name__ == "__main__":
-    input_file = sys.argv[1] if len(sys.argv) > 1 else "keywords.csv"
-    output_file = sys.argv[2] if len(sys.argv) > 2 else "keywords_clean.csv"
+    input_file = sys.argv[1] if len(sys.argv) > 1 else "/multimodal/data/keywords.csv"
+    output_file = sys.argv[2] if len(sys.argv) > 2 else "/multimodal/data/keywords_clean.csv"
     preprocess_keywords(input_file, output_file)
+    print(f"✅ Preprocessed keywords saved to {output_file}")

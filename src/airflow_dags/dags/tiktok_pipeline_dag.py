@@ -8,6 +8,9 @@ from growth import growth_detection
 from metrics import metrics_collector
 from multi_modal.preprocess import preprocess_keywords
 
+# Variable to use spark
+USE_SPARK = os.getenv("USE_SPARK", "false").lower() == "true"
+
 default_args = {
     "owner": "airflow",
     "depends_on_past": False,
@@ -38,12 +41,14 @@ with DAG(
     )
 
     # Step 2: run multimodal pipeline inside its own container
+    multimodal_command = ("python multimodal_spark.py" if USE_SPARK else "python multimodal_pipeline.py")
+
     multimodal = DockerOperator(
         task_id="multimodal_pipeline",
         image="multimodal:latest",
         api_version="auto",
         auto_remove=True,
-        command="python multimodal_pipeline.py",
+        command=multimodal_command,
         docker_url="unix://var/run/docker.sock",
         network_mode="bridge",
     )

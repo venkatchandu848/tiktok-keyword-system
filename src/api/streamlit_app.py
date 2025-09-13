@@ -13,6 +13,12 @@ def load_data(path=None):
     if path is None:
         script_dir = Path(__file__).resolve().parent
         path = script_dir.parent / "multi_modal" / "keywords_clean.csv"
+
+        # If using docker container, then
+        # path = "/app/data/keywords_clean.csv"
+    if not path.exists():
+        raise FileNotFoundError(f"❌ keywords_clean.csv not found at {path}")
+                                
     df = pd.read_csv(path, parse_dates=["detected_at", "posted_at"], low_memory=False)
 
     df["posted_at"] = pd.to_datetime(df["posted_at"], errors="coerce")

@@ -39,6 +39,9 @@ def main():
     SCRAPER_JSON = os.path.join(os.path.dirname(__file__), "..", "scraper", "tiktok_trending.json")
     SCRAPER_JSON = os.path.abspath(SCRAPER_JSON)
 
+    # # If using docker container then
+    # SCRAPER_JSON = "/multimodal/data/tiktok_trending.json"
+
     with open(SCRAPER_JSON, "r", encoding="utf-8") as f:
         videos = json.load(f)
 
@@ -54,6 +57,11 @@ def main():
 
     # Save to Postgres (TimescaleDB)
     save_keywords_bulk(results)
+
+    # Save keywords.csv to shared volume (docker)
+    # output_path = "/multimodal/data/keywords.csv"
+    # save_keywords_csv(all_rows, output_path)
+    # print(f"✅ Saved keywords.csv to {output_path}")
 
     spark.stop()
 

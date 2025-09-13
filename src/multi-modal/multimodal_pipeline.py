@@ -70,8 +70,12 @@ def get_stopwords_for_lang(lang_code):
 # Configuration (env or defaults)
 # ---------------------------
 
+# When loading life locally.
 SCRAPER_JSON = os.path.join(os.path.dirname(__file__), "..", "scraper", "tiktok_trending.json")
 SCRAPER_JSON = os.path.abspath(SCRAPER_JSON)
+
+# # If using docker container then
+# SCRAPER_JSON = "/multimodal/data/tiktok_trending.json"
 
 with open(SCRAPER_JSON, "r", encoding="utf-8") as f:
     video_metadata = json.load(f)
@@ -484,6 +488,11 @@ def main():
     csv_out = os.path.join(os.path.dirname(__file__), "keywords.csv")
     save_keywords_csv(all_rows, csv_out)
     print(f"[main] saved keywords to {csv_out}")
+
+    # Save keywords.csv to shared volume (docker)
+    # output_path = "/multimodal/data/keywords.csv"
+    # save_keywords_csv(all_rows, output_path)
+    # print(f"✅ Saved keywords.csv to {output_path}")
 
     # cleanup tmpdir
     shutil.rmtree(tmpdir, ignore_errors=True)

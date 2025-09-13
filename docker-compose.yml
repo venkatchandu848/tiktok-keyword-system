@@ -1,0 +1,135 @@
+version: '3.9'
+
+services:
+  # -----------------------------
+  # Postgres / TimescaleDB
+  # -----------------------------
+  tiktok-db:
+    image: timescale/timescaledb:latest-pg15
+    container_name: tiktok-db
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - tiktok-db-data:/var/lib/postgresql/data
+      - ./src/database/full_file.sql:/docker-entrypoint-initdb.d/full_file.sql
+    networks:
+      - tiktok-net
+
+  # -----------------------------
+  # Airflow (webserver & Scheduler)
+  # -----------------------------
+  airflow-webserver:
+    build: ./src/airflow_dags
+    container_name: airflow-webserver
+    depends_on:
+      - tiktok-db
+    environment:
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'False'
+      AIRFLOW__CORE__EXECUTOR: 'LocalExecutor'
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: 'postgresql+psycopg2://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}'
+      ms_token: ${ms_token}
+      USE_SPARK: ${use_spark}
+    volumes:
+      - ./src/airflow_dags/dags:/opt/airflow/dags
+      - /var/run/docker.sock:/var/run/docker.sock   # needed for DockerOperator
+    ports:
+      - "8080:8080"
+    command: >
+      bash -c "airflow db init &&
+               airflow webserver"
+    restart: always
+    networks:
+      - tiktok-net
+
+  airflow-scheduler:
+    build: ./src/airflow_dags
+    container_name: airflow-scheduler
+    depends_on:
+      - tiktok-db
+      - airflow-webserver
+    environment:
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'False'
+      AIRFLOW__CORE__EXECUTOR: 'LocalExecutor'
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: 'postgresql+psycopg2://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}'
+    volumes:
+      - ./src/airflow_dags/dags:/opt/airflow/dags
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: airflow scheduler
+    networks:
+      - tiktok-net
+    restart: always
+
+  # -----------------------------
+  # Scraper container (Playwright + Python)
+  # -----------------------------
+  scraper:
+    build:
+      context: ./src/scraper
+      dockerfile: Dockerfile
+    container_name: scraper
+    depends_on:
+      - tiktok-db
+    volumes:
+      - shared-data:/app/data
+    networks:
+      - tiktok-net
+
+  # -----------------------------
+  # Multimodal container (Whisper + Transformers)
+  # -----------------------------
+  multimodal:
+    build:
+      context: .
+      dockerfile: src/multi_modal/Dockerfile
+    container_name: multimodal
+    depends_on:
+      - tiktok-db
+      - scraper
+    volumes:
+      - shared-data:/multimodal/data
+    networks:
+      - tiktok-net
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASSWORD}
+    entrypoint: ["/bin/bash", "-c"]
+    command: ./wait-for-it.sh ${DB_HOST}:${DB_PORT} --timeout=30 --strict -- python ./multi-modal/multimodal_pipeline.py
+
+  # -----------------------------
+  # API / Streamlit container
+  # -----------------------------
+  api:
+    build:
+      context: ./src/api
+      dockerfile: Dockerfile
+    container_name: api
+    depends_on:
+      - multimodal
+    volumes:
+      - shared-data:/app/data   # access CSV created by multimodal
+    ports:
+      - "8501:8501"
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASSWORD}
+    command: streamlit run streamlit_app.py --server.port=8501 --server.address=0.0.0.0
+    networks:
+      - tiktok-net
+
+volumes:
+  tiktok-db-data:
+  shared-data:
+
+networks:
+  tiktok-net:
+    driver: bridge
