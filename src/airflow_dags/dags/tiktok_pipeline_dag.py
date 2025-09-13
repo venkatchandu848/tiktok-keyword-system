@@ -62,7 +62,7 @@ with DAG(
             "output_path": "/opt/airflow/data/keywords_clean.csv",
         },
     )
-    
+
     # Step 4: refresh TimescaleDB rollups
     refresh_rollups = PostgresOperator(
         task_id="refresh_rollups",

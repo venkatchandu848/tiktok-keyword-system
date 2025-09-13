@@ -66,7 +66,7 @@ async def fetch_videos(api, region, category, count=VIDEOS_PER_CATEGORY):
             # await asyncio.sleep(random.uniform(0.5, 2.0))
 
             # # Random sleep between regions
-            # await asyncio.sleep(random.uniform(2, 5))   
+            # await asyncio.sleep(random.uniform(2, 5))
     except Exception as e:
         print(f"[fetch_videos] failed for {region}-{category}: {e}")
     return videos_list

@@ -10,7 +10,7 @@ Prototype multi-modal extraction:
 - extracts keywords (simple tokenization + stopword removal)
 - writes keyword rows into Postgres (suitable for TimescaleDB aggregation)
 
-Caveats: heavy models and system libs required. This is a prototype; 
+Caveats: heavy models and system libs required. This is a prototype;
 production needs batching, parallel workers, retries, rate-limiting, and better NER/keyword extraction.
 """
 
@@ -118,7 +118,7 @@ def get_db_conn(retries=5, delay=5):
         except Exception as e:
             print(f"[test] Database connection failed (attempt {i+1}/{retries}): {e}")
             time.sleep(delay)
-    # raise Exception("Could not connect to DB after multiple retries")    
+    # raise Exception("Could not connect to DB after multiple retries")
 
 
 def save_keywords_bulk(rows):
@@ -133,7 +133,7 @@ def save_keywords_bulk(rows):
         with conn:
             with conn.cursor() as cur:
                 sql = """
-                INSERT INTO keywords (video_id, keyword, modality, 
+                INSERT INTO keywords (video_id, keyword, modality,
                                       confidence, detected_at, posted_at, region, category, stats)
                 VALUES %s
                 """
@@ -159,7 +159,7 @@ def save_keywords_csv(rows, out_path="keywords.csv"):
     import csv
     if not rows:
         return
-    header = ["video_id", "keyword", "modality", "confidence", "detected_at", 
+    header = ["video_id", "keyword", "modality", "confidence", "detected_at",
               "posted_at", "region", "category", "stats_json"]
     file_exists = os.path.isfile(out_path)
 
@@ -262,7 +262,8 @@ print("[pipeline] loading ASR model:", WHISPER_MODEL)
 asr_model = whisper.load_model(WHISPER_MODEL)  # loads to CPU or GPU as available
 
 print("[pipeline] loading image-caption model:", IMAGE_CAPTION_MODEL)
-# image_captioner = pipeline("image-captioning", model=IMAGE_CAPTION_MODEL, device=0 if torch.cuda.is_available() else -1)
+# image_captioner = pipeline("image-captioning", model=IMAGE_CAPTION_MODEL, 
+#                             device=0 if torch.cuda.is_available() else -1)
 caption_processor = AutoProcessor.from_pretrained(IMAGE_CAPTION_MODEL)
 caption_model = VisionEncoderDecoderModel.from_pretrained(IMAGE_CAPTION_MODEL)
 
@@ -405,7 +406,7 @@ def process_video_entry(entry, tmpdir):
                         print(f"[whisper] transcript (first 100 chars) for {video_id}: {transcript[:100]}")
                         kws = extract_keywords_multilingual(transcript)
                         for kw in kws:
-                            rows.append((video_id, kw, "transcript", 1.0, 
+                            rows.append((video_id, kw, "transcript", 1.0,
                                          detected_at, posted_at, region, category, stats))
                 except Exception as e:
                     print(f"[process_video_entry] Audio processing error for video {video_id}: {e}")
@@ -432,14 +433,14 @@ def process_video_entry(entry, tmpdir):
                             for kw in kws:
                                 rows.append((video_id, kw, "ocr", 1.0, detected_at, posted_at, region, category, stats))
                         except Exception as e:
-                            print(f"[process_video_entry] OCR error in frame {fname} for video {video_id}: {e}") 
+                            print(f"[process_video_entry] OCR error in frame {fname} for video {video_id}: {e}")
                         # image caption
                         try:
                             cap_text = image_caption(fpath)
                             print(f"[caption] {video_id} frame {fname} -> {cap_text}")
                             kws = extract_keywords_multilingual(cap_text)
                             for kw in kws:
-                                rows.append((video_id, kw, "image_caption", 1.0, 
+                                rows.append((video_id, kw, "image_caption", 1.0,
                                              detected_at, posted_at, region, category, stats))
                         except Exception as e:
                             print(f"[process_video_entry] Image caption error in frame {fname}"

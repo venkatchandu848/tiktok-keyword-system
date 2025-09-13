@@ -15,7 +15,7 @@ def load_data(path=None):
         # If using docker container, then
         # path = "/app/data/keywords_clean.csv"
     if not path.exists():
-        raise FileNotFoundError(f"❌ keywords_clean.csv not found at {path}")                        
+        raise FileNotFoundError(f"❌ keywords_clean.csv not found at {path}")                    
     df = pd.read_csv(path, parse_dates=["detected_at", "posted_at"], low_memory=False)
     df["posted_at"] = pd.to_datetime(df["posted_at"], errors="coerce")
     df["detected_at"] = pd.to_datetime(df["detected_at"], errors="coerce")
@@ -59,7 +59,7 @@ def filter_df(df, regions, categories, modalities, start_date, end_date, top_n):
 
     # Or simpler: just compare using naive timestamps
     dff = dff[(dff["posted_at"] >= pd.Timestamp(start_date))
-               & (dff["posted_at"] <= pd.Timestamp(end_date) + pd.Timedelta(days=1))]
+              & (dff["posted_at"] <= pd.Timestamp(end_date) + pd.Timedelta(days=1))]
 
     if top_n and "engagement_total" in dff.columns:
         dff = dff.nlargest(top_n, "engagement_total")
@@ -116,8 +116,8 @@ with col1:
     if not dff.empty:
         kw_agg = (dff.groupby(["keyword", "modality"], as_index=False)
                   .agg(total_engagement=("engagement_total", "sum"),
-                     plays=("playCount", "sum"))
-                     .sort_values("total_engagement", ascending=False))
+                  plays=("playCount", "sum"))
+                  .sort_values("total_engagement", ascending=False))
         top_kw = kw_agg.groupby("keyword", as_index=False).agg(total_engagement=("total_engagement", "sum"))
         top_kw = top_kw.sort_values("total_engagement", ascending=False).head(top_n)
         # Merge back modality info to color by most-common modality for keyword (simple heuristic)
@@ -142,9 +142,9 @@ with col2:
         map_df = map_df.dropna(subset=["iso3"])
         if not map_df.empty:
             fig2 = px.choropleth(map_df, locations="iso3", color="avg_engagement_rate",
-                                hover_name="region", hover_data=["sum_plays", "count_videos"],
-                                color_continuous_scale="YlOrRd",
-                                labels={"avg_engagement_rate": "Avg engagement rate"})
+                                 hover_name="region", hover_data=["sum_plays", "count_videos"],
+                                 color_continuous_scale="YlOrRd",
+                                 labels={"avg_engagement_rate": "Avg engagement rate"})
             fig2.update_layout(height=600)
             st.plotly_chart(fig2, use_container_width=True)
         else:
@@ -161,10 +161,10 @@ with col3:
     if not dff.empty:
         scatter_df = (dff.groupby(["keyword"], as_index=False)
                       .agg(avg_virality=("virality_index", "mean"),
-                                avg_discussion=("discussion_rate", "mean"),
-                                total_engagement=("engagement_total", "sum"),
-                                plays=("playCount", "sum"),
-                                category=("category", "first")))
+                           avg_discussion=("discussion_rate", "mean"),
+                           total_engagement=("engagement_total", "sum"),
+                           plays=("playCount", "sum"),
+                           category=("category", "first")))
         # filter top keywords for readability
         top_keywords_list = top_kw["keyword"].tolist()
         scatter_df = scatter_df[scatter_df["keyword"].isin(top_keywords_list)]
@@ -172,11 +172,11 @@ with col3:
             st.info("Not enough data for scatter plot.")
         else:
             fig3 = px.scatter(scatter_df, x="avg_virality", y="avg_discussion",
-                                size="total_engagement", color="category",
-                                hover_name="keyword", hover_data=["plays", "total_engagement"],
-                                labels={
-                                    "avg_virality": "Virality Index (shares/views)",
-                                    "avg_discussion": "Discussion Rate (comments/views)"})
+                              size="total_engagement", color="category",
+                              hover_name="keyword", hover_data=["plays", "total_engagement"],
+                              labels={
+                              "avg_virality": "Virality Index (shares/views)",
+                              "avg_discussion": "Discussion Rate (comments/views)"})
             fig3.update_layout(height=500)
             st.plotly_chart(fig3, use_container_width=True)
     else:
@@ -193,8 +193,9 @@ with col4:
             st.info("No category data.")
         else:
             cat_df = cat_df.sort_values("total_engagement", ascending=False)
-            fig4 = px.bar(cat_df, x="total_engagement", y="category", orientation="h", 
-                          hover_data=["avg_engagement_rate", "count_videos"], labels={"total_engagement": "Total Engagement"})
+            fig4 = px.bar(cat_df, x="total_engagement", y="category", orientation="h",
+                          hover_data=["avg_engagement_rate", "count_videos"],
+                          labels={"total_engagement": "Total Engagement"})
             fig4.update_layout(height=500)
             st.plotly_chart(fig4, use_container_width=True)
     else:
