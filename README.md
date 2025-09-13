@@ -94,8 +94,9 @@ source venv/bin/activate    # Linux/Mac
 venv\Scripts\activate       # Windows
 pip install --upgrade pip
 pip install -r requirements_all.txt
+```
 
-### 2\. Run components
+### 2. Run components
 - **Scraper**
   Run the scraper to fetch trending tiktok videos:
 
