@@ -13,7 +13,7 @@ It supports running both with Docker (recommended) and without a docker (using a
 ----
 
 ## 📂 Project Structure
-
+```
 tiktok-trending-pipeline/
 │
 ├── src/
@@ -61,7 +61,7 @@ tiktok-trending-pipeline/
 ├── docker-compose.yml
 ├── requirements_all.txt
 └── README.md
-
+```
 --- 
 
 
