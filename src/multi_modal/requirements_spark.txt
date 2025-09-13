@@ -1,0 +1,14 @@
+requests
+pandas
+psycopg2-binary
+openai-whisper    # OpenAI whisper (pip package)
+pytesseract
+Pillow
+transformers
+accelerate
+torch   # CPU or GPU version depending on environment
+nltk
+python-dotenv
+pyspark
+langdetect
+stopwordsiso

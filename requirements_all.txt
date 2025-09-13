@@ -1,0 +1,41 @@
+# Api related libraries
+streamlit==1.30.0
+pandas==2.1.2
+plotly==5.16.0
+pycountry==22.3.5
+fastapi==0.95.2
+uvicorn[standard]==0.22.0
+python-multipart==0.0.6
+pydantic==1.10.11
+
+# Airflow related libraries
+apache-airflow
+apache-airflow-providers-docker
+apache-airflow-providers-postgres
+psycopg2-binary
+
+# Spark related libraries
+requests
+pandas
+psycopg2-binary
+openai-whisper    # OpenAI whisper (pip package)
+pytesseract
+Pillow
+transformers
+accelerate
+torch   # CPU or GPU version depending on environment
+nltk
+python-dotenv
+pyspark
+langdetect
+stopwordsiso
+
+# Scraper related libraries
+TikTokApi
+aiohttp
+async-timeout
+playwright
+requests
+tenacity                  # for retry logic
+ratelimit                 # for rate limiting
+concurrent-log-handler    # optional, for logging in multi-threading
