@@ -15,7 +15,7 @@ def load_data(path=None):
         # If using docker container, then
         # path = "/app/data/keywords_clean.csv"
     if not path.exists():
-        raise FileNotFoundError(f"❌ keywords_clean.csv not found at {path}")                  
+        raise FileNotFoundError(f"❌ keywords_clean.csv not found at {path}")
     df = pd.read_csv(path, parse_dates=["detected_at", "posted_at"], low_memory=False)
     df["posted_at"] = pd.to_datetime(df["posted_at"], errors="coerce")
     df["detected_at"] = pd.to_datetime(df["detected_at"], errors="coerce")
