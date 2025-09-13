@@ -6,7 +6,7 @@ COPY airflow_dags/requirements_dag.txt /requirements_dag.txt
 RUN pip install --no-cache-dir -r /requirements_dag.txt
 
 # Copy repo into Airflow
-COPY airflow_dags/dags /opt/airflow/dags/
+COPY src/airflow_dags/dags /opt/airflow/dags/
 
 # COPY growth and metrics into airflow image
 COPY src/metrics /opt/airflow/plugins/metrics
