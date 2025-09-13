@@ -9,6 +9,7 @@ app = FastAPI(title="TikTok Keywords API")
 
 DATA_PATH = "keywords_clean.csv"
 
+
 @functools.lru_cache(maxsize=1)
 def load_df():
     df = pd.read_csv(DATA_PATH, parse_dates=["detected_at", "posted_at"], low_memory=False)
@@ -61,4 +62,4 @@ def download_filtered_csv(
     stream.seek(0)
     return StreamingResponse(iter([stream.getvalue()]),
                              media_type="text/csv",
-                             headers={"Content-Disposition":"attachment; filename=keywords_filtered.csv"})
+                             headers={"Content-Disposition": "attachment; filename=keywords_filtered.csv"})
