@@ -262,7 +262,7 @@ print("[pipeline] loading ASR model:", WHISPER_MODEL)
 asr_model = whisper.load_model(WHISPER_MODEL)  # loads to CPU or GPU as available
 
 print("[pipeline] loading image-caption model:", IMAGE_CAPTION_MODEL)
-# image_captioner = pipeline("image-captioning", model=IMAGE_CAPTION_MODEL, 
+# image_captioner = pipeline("image-captioning", model=IMAGE_CAPTION_MODEL,
 #                             device=0 if torch.cuda.is_available() else -1)
 caption_processor = AutoProcessor.from_pretrained(IMAGE_CAPTION_MODEL)
 caption_model = VisionEncoderDecoderModel.from_pretrained(IMAGE_CAPTION_MODEL)

@@ -15,7 +15,7 @@ def load_data(path=None):
         # If using docker container, then
         # path = "/app/data/keywords_clean.csv"
     if not path.exists():
-        raise FileNotFoundError(f"❌ keywords_clean.csv not found at {path}")                    
+        raise FileNotFoundError(f"❌ keywords_clean.csv not found at {path}")                  
     df = pd.read_csv(path, parse_dates=["detected_at", "posted_at"], low_memory=False)
     df["posted_at"] = pd.to_datetime(df["posted_at"], errors="coerce")
     df["detected_at"] = pd.to_datetime(df["detected_at"], errors="coerce")
@@ -175,8 +175,8 @@ with col3:
                               size="total_engagement", color="category",
                               hover_name="keyword", hover_data=["plays", "total_engagement"],
                               labels={
-                              "avg_virality": "Virality Index (shares/views)",
-                              "avg_discussion": "Discussion Rate (comments/views)"})
+                               "avg_virality": "Virality Index (shares/views)",
+                               "avg_discussion": "Discussion Rate (comments/views)"})
             fig3.update_layout(height=500)
             st.plotly_chart(fig3, use_container_width=True)
     else:
