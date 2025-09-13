@@ -30,7 +30,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r src/scraper/requirements_scraper.txt
-          pip install -r src/multi-modal/requirements_spark.txt
+          pip install -r src/multi_modal/requirements_spark.txt
           # optional: DAG requirements
           pip install -r src/airflow_dags/requirements_dag.txt
 
@@ -74,7 +74,7 @@ jobs:
 
       - name: Build multimodal image
         run: |
-          docker build -t ghcr.io/${{ github.repository }}/multimodal:latest src/multi-modal
+          docker build -t ghcr.io/${{ github.repository }}/multimodal:latest src/multi_modal
 
       - name: Push multimodal image
         run: |
