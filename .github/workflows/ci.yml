@@ -76,6 +76,6 @@ jobs:
 
       - name: Build Airflow DAGs Docker Image
         run: |
-          docker build -t ghcr.io/${{ github.actor }}/airflow-dags:latest src/airflow_dags
+          docker build -t ghcr.io/${{ github.actor }}/airflow-dags:latest -f src/airflow_dags/Dockerfile .
           docker push ghcr.io/${{ github.actor }}/airflow-dags:latest    
 
