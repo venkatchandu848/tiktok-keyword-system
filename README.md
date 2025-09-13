@@ -87,7 +87,7 @@ tiktok-trending-pipeline/
 ## Running without docker
 
 ### 1. Setup virtual environment and install dependencies
-bash
+```bash
 python3 -m venv venv
 source venv/bin/activate    # Linux/Mac
 venv\Scripts\activate       # Windows
