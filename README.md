@@ -217,4 +217,3 @@ A sample Tableau dashboard has been created using `keywords_clean.csv` to provid
     - Audio-based Extraction: [Whisper ASR](https://github.com/openai/whisper)
     - Visual Extraction (OCR): [Pytesseract](https://github.com/h/pytesseract)
     - Image captioning: [GPT2](https://huggingface.co/nlpconnect/vit-gpt2-image-captioning)
-- 
