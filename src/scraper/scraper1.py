@@ -29,7 +29,7 @@ CATEGORIES = [
   "entertainment", "lifehacks", "art", "memes", "automotive"
 ]
 VIDEOS_PER_CATEGORY = 20
-OUTPUT_FILE = "tiktok_trending1.json"
+OUTPUT_FILE = "tiktok_trending.json"
 
 # -----------------------------
 # Helper: fetch videos per region/category
@@ -71,6 +71,34 @@ async def fetch_videos(api, region, category, count=VIDEOS_PER_CATEGORY):
         print(f"[fetch_videos] failed for {region}-{category}: {e}")
     return videos_list
 
+
+# ----------------------------
+# Appending json function
+# ----------------------------
+
+
+def save_appending_json(new_videos, output_file):
+    # If the file exists, read previous contents
+    if os.path.exists(output_file):
+        with open(output_file, "r", encoding="utf-8") as f:
+            try:
+                prev_videos = json.load(f)
+                # File contains a list of videos, else re-initialize
+                if not isinstance(prev_videos, list):
+                    prev_videos = []
+            except json.JSONDecodeError:
+                # Previous file is empty or corrupted, start new
+                prev_videos = []
+    else:
+        prev_videos = []
+
+    # Append new videos to previous ones
+    all_videos = prev_videos + new_videos
+
+    # Save back to JSON
+    with open(output_file, "w", encoding="utf-8") as f:
+        json.dump(all_videos, f, ensure_ascii=False, indent=2)
+
 # -----------------------------
 # Main async function
 # -----------------------------
@@ -92,8 +120,7 @@ async def main():
             all_videos.extend(videos)
 
     # Save to JSON
-    with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
-        json.dump(all_videos, f, ensure_ascii=False, indent=2)
+    save_appending_json(all_videos, OUTPUT_FILE)
 
     print(f"✅ Scraped {len(all_videos)} videos across {len(REGIONS)*len(CATEGORIES)} region-category combos")
 
