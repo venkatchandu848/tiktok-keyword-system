@@ -1,10 +1,13 @@
 from datetime import datetime, timedelta, timezone
 import psycopg2
+import os 
 
-DB_HOST = "localhost"
-DB_NAME = "tiktok"
-DB_USER = "postgres"
-DB_PASS = "postgres"
+# DB config
+DB_HOST = os.getenv("DB_HOST", "localhost")
+DB_PORT = int(os.getenv("DB_PORT", "5432"))
+DB_NAME = os.getenv("DB_NAME", "tiktok")
+DB_USER = os.getenv("DB_USER", "postgres")
+DB_PASS = os.getenv("DB_PASS", "postgres")
 
 
 def run_backtest(days_back=7, horizon_days=3):
@@ -13,7 +16,7 @@ def run_backtest(days_back=7, horizon_days=3):
     Then measure actual growth over the next 'horizon_days'.
     """
     conn = psycopg2.connect(
-        host=DB_HOST, dbname=DB_NAME, user=DB_USER, password=DB_PASS
+        host=DB_HOST, dbname=DB_NAME, user=DB_USER, password=DB_PASS, port=DB_PORT
     )
     with conn, conn.cursor() as cur:
         fake_now = datetime.now(timezone.utc) - timedelta(days=days_back)
