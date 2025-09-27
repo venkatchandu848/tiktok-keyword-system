@@ -131,9 +131,7 @@ def detect_trending_keywords(
 
             if region:
                 params.append(region)
-                params.append(region)
             if category:
-                params.append(category)
                 params.append(category)
 
             params.extend([growth_threshold, limit])
